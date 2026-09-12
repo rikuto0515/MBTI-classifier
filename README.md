@@ -1,1 +1,1 @@
-# MBTI-crsifier
+# MBTI-classifier
