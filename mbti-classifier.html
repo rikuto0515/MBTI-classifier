@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBTI タイプ分類台帳</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Space+Mono:wght@400;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #14232E;
+    --bg-panel: #1B3341;
+    --bg-card: #1F3D4D;
+    --bg-raised: #23445690;
+    --ink: #F1EAE0;
+    --ink-dim: #A9BAC2;
+    --line: rgba(241,234,224,0.12);
+    --EI: #E4572E;
+    --SN: #2EC4B6;
+    --TF: #7B61FF;
+    --JP: #FFB100;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(46,196,182,0.10), transparent 60%),
+      radial-gradient(900px 500px at -5% 110%, rgba(228,87,46,0.10), transparent 60%),
+      var(--bg);
+    color:var(--ink);
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    min-height:100vh;
+    padding: 32px 18px 80px;
+  }
+  .wrap{max-width:720px;margin:0 auto;}
+
+  /* ---------- Header ---------- */
+  .headercard{
+    background:var(--bg-panel);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:26px 24px;
+    margin-bottom:22px;
+  }
+  .eyebrow{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.22em;
+    color:var(--ink-dim);
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(24px, 5vw, 32px);
+    margin:0 0 14px;
+    letter-spacing:-0.01em;
+  }
+  .countrow{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .countpill{
+    font-family:'Space Mono', monospace;
+    font-size:13px;
+    color:var(--ink-dim);
+  }
+  .countpill b{color:var(--ink); font-size:16px;}
+
+  .addbtn{
+    background:var(--SN);
+    color:#0A1A20;
+    border:none;
+    font-weight:700;
+    font-size:14px;
+    padding:11px 18px;
+    border-radius:9px;
+    cursor:pointer;
+    transition:background .15s, transform .1s;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  .addbtn:hover{background:#3fd8c9;}
+  .addbtn:active{transform:scale(0.97);}
+
+  /* ---------- Add-person form (collapsible) ---------- */
+  .formpanel{
+    overflow:hidden;
+    max-height:0;
+    transition:max-height .25s ease;
+  }
+  .formpanel.open{max-height:400px;}
+  form{
+    margin-top:18px;
+    padding-top:18px;
+    border-top:1px solid var(--line);
+    display:grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap:14px;
+    align-items:end;
+  }
+  @media (max-width:560px){ form{grid-template-columns:1fr;} }
+
+  label{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.1em;
+    color:var(--ink-dim);
+    text-transform:uppercase;
+    display:block;
+    margin-bottom:8px;
+  }
+  input[type=text]{
+    width:100%;
+    background:var(--bg);
+    border:1px solid var(--line);
+    color:var(--ink);
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    font-size:16px;
+    padding:12px 14px;
+    border-radius:8px;
+    outline:none;
+    transition:border-color .15s;
+  }
+  input[type=text]:focus{border-color: var(--SN);}
+  select#mbti{
+    width:100%;
+    background:var(--bg);
+    border:1px solid var(--line);
+    color:var(--ink);
+    font-family:'Space Mono', monospace;
+    letter-spacing:0.1em;
+    font-size:16px;
+    padding:12px 14px;
+    border-radius:8px;
+    outline:none;
+    appearance:none;
+    -webkit-appearance:none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1L7 7L13 1' stroke='%23A9BAC2' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position: right 14px center;
+    transition:border-color .15s;
+  }
+  select#mbti:focus{border-color:var(--SN);}
+  select#mbti option{background:var(--bg-panel); color:var(--ink);}
+
+  button{
+    background: var(--SN);
+    color:#0A1A20;
+    border:none;
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    padding:12px 22px;
+    border-radius:8px;
+    cursor:pointer;
+    transition:transform .1s, background .15s;
+    white-space:nowrap;
+  }
+  button:hover{background:#3fd8c9;}
+  button:active{transform:scale(0.97);}
+  button:focus-visible, input:focus-visible{outline:2px solid var(--SN); outline-offset:2px;}
+
+  /* ---------- Section wrapper ---------- */
+  .section{
+    background:var(--bg-panel);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:22px 24px;
+    margin-bottom:22px;
+  }
+  .section-title{
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    margin: 0 0 18px;
+  }
+
+  /* ---------- Axis breakdown ---------- */
+  .axisblock{border-top:1px solid var(--line); padding:14px 0;}
+  .axisblock:first-of-type{border-top:none; padding-top:0;}
+  .axisheader{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    cursor:pointer;
+    user-select:none;
+    background:none;
+    border:none;
+    width:100%;
+    color:var(--ink);
+    padding:0;
+    font-family:inherit;
+  }
+  .axisheader .axislabel{
+    font-family:'Space Mono', monospace;
+    font-weight:700;
+    font-size:14px;
+    min-width:56px;
+  }
+  .axisheader .axiscounts{
+    flex:1;
+    display:flex;
+    justify-content:space-between;
+    font-family:'Space Mono', monospace;
+    font-size:13px;
+    color:var(--ink-dim);
+    padding:0 4px;
+  }
+  .axisheader .chev{
+    font-size:11px;
+    color:var(--ink-dim);
+    transition:transform .15s;
+    flex-shrink:0;
+  }
+  .axisheader.expanded .chev{transform:rotate(180deg);}
+
+  .axisnames{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:14px;
+  }
+  .namecol{
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 14px;
+    max-height:180px;
+    overflow-y:auto;
+  }
+  .namecol .nameitem{
+    font-size:13.5px;
+    padding:4px 0;
+    color:var(--ink);
+    border-bottom:1px solid var(--line);
+  }
+  .namecol .nameitem:last-child{border-bottom:none;}
+  .namecol .noneitem{color:var(--ink-dim); font-size:12.5px;}
+
+  /* ---------- 16-type grid ---------- */
+  .typegrid{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap:10px;
+  }
+  @media (max-width:480px){ .typegrid{grid-template-columns: repeat(2, 1fr);} }
+  .typecell{
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 8px;
+    text-align:center;
+    opacity:0.4;
+  }
+  .typecell.has{opacity:1; border-color:var(--SN);}
+  .typecell .tcode{
+    font-family:'Space Mono', monospace;
+    font-weight:700;
+    font-size:13px;
+    display:block;
+  }
+  .typecell .tcount{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    color:var(--ink-dim);
+    display:block;
+    margin-top:4px;
+  }
+  .typecell.has .tcount{color:var(--SN);}
+
+  /* ---------- Registered member list ---------- */
+  .searchwrap{position:relative; margin-bottom:16px;}
+  .searchwrap input{padding-left:38px;}
+  .searchicon{
+    position:absolute;
+    left:13px;
+    top:50%;
+    transform:translateY(-50%);
+    color:var(--ink-dim);
+    font-size:15px;
+    pointer-events:none;
+  }
+
+  .filterbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    align-items:center;
+    margin-bottom:18px;
+  }
+  .filtergroup{display:flex; align-items:center; gap:6px;}
+  .filterletter{
+    font-family:'Space Mono', monospace;
+    font-size:12.5px;
+    font-weight:700;
+    padding:5px 11px;
+    border-radius:6px;
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--ink-dim);
+    cursor:pointer;
+  }
+  .filterletter.on{color:#0A1A20;}
+  .filterreset{
+    background:none;
+    border:none;
+    color:var(--ink-dim);
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    text-decoration:underline;
+    padding:5px 4px;
+    margin-left:auto;
+  }
+  .filterreset:hover{color:var(--EI);}
+  .filtercount{
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    color:var(--ink-dim);
+  }
+
+  .empty{
+    color:var(--ink-dim);
+    font-size:14px;
+    padding:26px 0;
+    border:1px dashed var(--line);
+    border-radius:12px;
+    text-align:center;
+  }
+
+  .entries{display:flex; flex-direction:column; gap:12px;}
+  .card{
+    background:var(--bg-card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:18px 20px;
+    display:grid;
+    grid-template-columns: auto 1fr auto;
+    gap:18px;
+    align-items:center;
+  }
+  @media (max-width:560px){ .card{grid-template-columns:1fr; text-align:left;} }
+
+  .codebadge{
+    font-family:'Space Mono', monospace;
+    font-weight:700;
+    font-size:20px;
+    letter-spacing:0.06em;
+    background:var(--bg);
+    padding:9px 13px;
+    border-radius:10px;
+    min-width:88px;
+    text-align:center;
+    border:1px solid var(--line);
+  }
+  .name{font-family:'Fraunces', serif; font-size:18px; font-weight:600; margin-bottom:9px; display:flex; align-items:center; gap:8px;}
+  .editbtn{
+    background:none;
+    border:none;
+    color:var(--ink-dim);
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    cursor:pointer;
+    padding:2px 4px;
+  }
+  .editbtn:hover{color:var(--SN);}
+  .nameedit{display:flex; gap:8px; margin-bottom:9px; align-items:center;}
+  .nameedit input[type=text]{padding:8px 10px; font-size:15px;}
+  .nameedit button{padding:8px 14px; font-size:13px;}
+  .nameedit .cancelbtn{background:none; border:1px solid var(--line); color:var(--ink-dim);}
+  .axisrow{display:flex; gap:8px; flex-wrap:wrap;}
+  .letterpair{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    display:flex;
+    border-radius:6px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .letterpair span{padding:5px 8px; color:var(--ink-dim);}
+  .letterpair span.active{color:#0A1A20; font-weight:700;}
+  .delbtn{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--ink-dim);
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    padding:8px 12px;
+    border-radius:8px;
+  }
+  .delbtn:hover{border-color:var(--EI); color:var(--EI);}
+
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:28px;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--EI);
+    color:#241008;
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    padding:13px 22px;
+    border-radius:10px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.35);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+    z-index:100;
+    max-width:90vw;
+    text-align:center;
+  }
+  .toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
+  footer{
+    margin-top:20px;
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    color:var(--ink-dim);
+    text-align:center;
+  }
+  .axisintro{color:var(--ink-dim);font-size:13px;margin:-6px 0 20px;}
+  .axisheader{display:block;text-align:left;white-space:normal;border-radius:8px;}
+  .axisheader:hover{background:rgba(255,255,255,.035);}
+  .axistop{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;}
+  .axistitle{font-size:14px;font-weight:700;}
+  .axisaction{font-size:11px;color:var(--ink-dim);font-weight:400;}
+  .axiscomparison{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .axisside{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;padding:12px;border-radius:8px;background:var(--bg-card);}
+  .axisside strong{font-family:'Space Mono',monospace;font-size:19px;color:var(--axis-color);}
+  .axisside .axismeaning{font-size:13px;}
+  .axismetric{width:100%;font-size:20px;font-weight:700;}
+  .axismetric small{font-size:12px;color:var(--ink-dim);font-weight:400;}
+  .axisbar{display:flex;height:6px;border-radius:6px;overflow:hidden;margin-top:10px;background:var(--bg);}
+  .axisbar span:first-child{background:var(--axis-color);}
+  .axisbar span:last-child{background:var(--axis-color);opacity:.35;}
+  .namecol h3{font-size:12px;color:var(--ink-dim);margin:0 0 8px;}
+  .nameitem{overflow-wrap:anywhere;}
+  dialog{width:min(440px,calc(100% - 32px));padding:26px;border:1px solid var(--line);border-radius:16px;background:var(--bg-panel);color:var(--ink);box-shadow:0 20px 80px #0008;}
+  dialog::backdrop{background:rgba(5,15,22,.75);}
+  dialog h2{font-size:20px;margin:0 0 14px;}
+  dialog p{font-size:14px;line-height:1.8;overflow-wrap:anywhere;}
+  .dialogactions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px;}
+  .dialogcancel{background:transparent;color:var(--ink);border:1px solid var(--line);}
+  .dialogcancel:hover{background:var(--bg-card);}
+  .dangerbtn{background:#E4572E;color:#fff;}
+  .dangerbtn:hover{background:#c74320;}
+  #deleteError{color:#ffad91;}
+  .typecell{border-color:var(--group-color);opacity:.65;}
+  .typecell.has{border-color:var(--group-color);background:var(--group-bg);}
+  .typecell .tcode,.typecell.has .tcount{color:var(--group-color);}
+  .groupheading{grid-column:1 / -1;margin:12px 0 2px;padding:10px 0;border-bottom:1px solid var(--line);}
+  .groupheading h3{color:var(--group-color);font-size:15px;margin:0 0 5px;}
+  .groupheading p{font-size:12px;color:var(--ink-dim);margin:0;line-height:1.7;}
+  .card{border-left:4px solid var(--group-color);}
+  .codebadge{color:var(--group-color);border-color:var(--group-color);background:var(--group-bg);}
+  .codebadge small{display:block;font-family:'Zen Kaku Gothic New',sans-serif;font-size:11px;letter-spacing:0;margin-top:5px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="headercard">
+    <div class="eyebrow">PERSONALITY INDEX / 16 TYPES</div>
+    <h1>MBTI タイプ分類台帳</h1>
+    <div class="countrow">
+      <div class="countpill">登録人数 <b id="totalCount">0</b>人</div>
+      <button type="button" class="addbtn" id="toggleAddBtn">＋ 人物を追加</button>
+    </div>
+    <div class="formpanel" id="formPanel">
+      <form id="entryForm">
+        <div>
+          <label for="name">名前</label>
+          <input type="text" id="name" placeholder="例: 山田太郎" autocomplete="off">
+        </div>
+        <div>
+          <label for="mbti">MBTIタイプ</label>
+          <select id="mbti">
+            <option value="">選択してください</option>
+          </select>
+        </div>
+        <button type="submit">登録する</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">軸ごとの分類</div>
+    <p class="axisintro">全登録者の人数と割合です。各項目を押すと名前を確認できます。</p>
+    <div id="axisBlocks"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">16タイプの分布</div>
+    <div class="typegrid" id="typeGrid"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">登録者一覧</div>
+    <div class="searchwrap">
+      <span class="searchicon">🔍</span>
+      <input type="text" id="nameSearch" placeholder="名前を検索">
+    </div>
+    <div class="filterbar" id="filterBar"></div>
+    <div id="entriesWrap"></div>
+  </div>
+
+  <footer id="storageStatus" role="status">登録・編集したデータは、このブラウザーに自動保存されます。<br>同じブラウザーでこのページを開くと復元されます。ブラウザーのデータを削除すると消去されます。</footer>
+</div>
+
+<div id="toast" class="toast"></div>
+<dialog id="deleteDialog" aria-labelledby="deleteTitle" aria-describedby="deleteDescription">
+  <h2 id="deleteTitle">登録を削除しますか？</h2>
+  <p id="deleteDescription"><strong id="deleteName"></strong>さんの登録を削除します。この操作は取り消せません。</p>
+  <p id="deleteError" role="alert" hidden>保存に失敗しました。削除は行われていません。再度お試しください。</p>
+  <div class="dialogactions">
+    <button type="button" class="dialogcancel" id="cancelDelete" autofocus>キャンセル</button>
+    <button type="button" class="dangerbtn" id="confirmDelete">削除する</button>
+  </div>
+</dialog>
+
+<script>
+const AXES = [
+  {key:'EI', pair:['E','I'], color:'var(--EI)', label:['外向','内向']},
+  {key:'SN', pair:['S','N'], color:'var(--SN)', label:['感覚','直観']},
+  {key:'TF', pair:['F','T'], color:'var(--TF)', label:['感情','思考']},
+  {key:'JP', pair:['P','J'], color:'var(--JP)', label:['知覚','判断']},
+];
+
+const TYPE_GROUPS = [
+  {name:'分析家', colorName:'紫', color:'#C9A0FF', bg:'#352C49', types:['INTJ','INTP','ENTJ','ENTP'], description:'論理やアイデアを重視する'},
+  {name:'外交官', colorName:'緑', color:'#83D9A0', bg:'#243F38', types:['INFJ','INFP','ENFJ','ENFP'], description:'理想や人とのつながりを大切にする'},
+  {name:'番人', colorName:'青', color:'#80BFFF', bg:'#263C54', types:['ISTJ','ISFJ','ESTJ','ESFJ'], description:'責任感があり、秩序や安定を重視する'},
+  {name:'探検家', colorName:'黄', color:'#F5D46F', bg:'#403D2D', types:['ISTP','ISFP','ESTP','ESFP'], description:'実践的で、状況に柔軟に対応する'},
+];
+const TYPE_GRID = TYPE_GROUPS.map(group => group.types);
+const TYPE_ORDER = TYPE_GRID.flat();
+function typeGroup(type){ return TYPE_GROUPS.find(group => group.types.includes(type)); }
+function groupStyle(group){ return `--group-color:${group.color};--group-bg:${group.bg}`; }
+function groupHeading(group, count){
+  return `<div class="groupheading" style="${groupStyle(group)}"><h3>${group.colorName} · ${group.name} <span>（${count}人）</span></h3><p>${group.description}</p></div>`;
+}
+
+const toggleAddBtn = document.getElementById('toggleAddBtn');
+const formPanel = document.getElementById('formPanel');
+const form = document.getElementById('entryForm');
+const nameInput = document.getElementById('name');
+const mbtiInput = document.getElementById('mbti');
+const nameSearch = document.getElementById('nameSearch');
+const toast = document.getElementById('toast');
+const totalCount = document.getElementById('totalCount');
+const axisBlocksWrap = document.getElementById('axisBlocks');
+const typeGridWrap = document.getElementById('typeGrid');
+const entriesWrap = document.getElementById('entriesWrap');
+const filterBar = document.getElementById('filterBar');
+
+const STORAGE_KEY = 'entries';
+let storageLoaded = false;
+let entries = [];
+let editingId = null;
+let filters = [null, null, null, null];
+let axisExpanded = [true, true, false, false];
+let searchTerm = '';
+const deleteDialog = document.getElementById('deleteDialog');
+let pendingDeleteId = null;
+document.getElementById('cancelDelete').addEventListener('click', () => deleteDialog.close());
+deleteDialog.addEventListener('close', () => { pendingDeleteId = null; });
+document.getElementById('confirmDelete').addEventListener('click', () => {
+  if(!pendingDeleteId) return;
+  if(!saveEntries(entries.filter(en => en.id !== pendingDeleteId))){
+    document.getElementById('deleteError').hidden = false;
+    return;
+  }
+  deleteDialog.close();
+  editingId = null;
+  render();
+  nameSearch.focus();
+  showToast('登録を削除しました。');
+});
+
+let toastTimer = null;
+function showToast(message){
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+}
+
+function loadEntries(){
+  try{
+    const stored = localStorage.getItem(STORAGE_KEY);
+    const parsed = stored === null ? [] : JSON.parse(stored);
+    if(!Array.isArray(parsed) || !parsed.every(entry =>
+      entry && typeof entry.id === 'string' && /^[\w-]+$/.test(entry.id) &&
+      typeof entry.name === 'string' && entry.name.trim() &&
+      typeof entry.type === 'string' && /^[EI][SN][TF][JP]$/.test(entry.type)
+    ) || new Set(parsed.map(entry => entry.id)).size !== parsed.length){
+      throw new Error('Invalid stored entries');
+    }
+    entries = parsed;
+    storageLoaded = true;
+  }catch(e){
+    document.getElementById('storageStatus').textContent = '保存データを読み込めませんでした。既存データを保護するため変更は保存できません。ブラウザーの保存設定を確認して再読み込みしてください。';
+    showToast('保存データを読み込めませんでした。');
+  }
+  render();
+}
+
+function saveEntries(nextEntries){
+  if(!storageLoaded){
+    showToast('保存データを読み込めていないため、変更できません。');
+    return false;
+  }
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(nextEntries));
+    entries = nextEntries;
+    return true;
+  }catch(e){
+    showToast('保存できませんでした。ブラウザーの保存設定や空き容量を確認してください。');
+    return false;
+  }
+}
+
+function validateType(raw){
+  const t = raw.trim().toUpperCase();
+  if(!/^[EI][SN][TF][JP]$/.test(t)) return null;
+  return t;
+}
+
+function populateMbtiOptions(){
+  const letters = [['E','I'],['S','N'],['T','F'],['J','P']];
+  const all = [];
+  for(const a of letters[0]) for(const b of letters[1]) for(const c of letters[2]) for(const d of letters[3])
+    all.push(a+b+c+d);
+  all.sort();
+  for(const type of all){
+    const opt = document.createElement('option');
+    opt.value = type;
+    opt.textContent = type;
+    mbtiInput.appendChild(opt);
+  }
+}
+populateMbtiOptions();
+
+toggleAddBtn.addEventListener('click', () => {
+  const isOpen = formPanel.classList.toggle('open');
+  toggleAddBtn.textContent = isOpen ? '－ 閉じる' : '＋ 人物を追加';
+  if(isOpen) nameInput.focus();
+});
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = nameInput.value.trim();
+  const type = validateType(mbtiInput.value);
+
+  if(!name){ showToast('名前を入力してください。'); return; }
+  if(!type){ showToast('MBTIタイプをプルダウンから選択してください。'); return; }
+
+  if(!saveEntries([{ id: Date.now() + '-' + Math.random().toString(36).slice(2,7), name, type }, ...entries])) return;
+  render();
+  nameInput.value = '';
+  mbtiInput.value = '';
+  nameInput.focus();
+});
+
+nameSearch.addEventListener('input', () => {
+  searchTerm = nameSearch.value.trim();
+  render();
+});
+
+axisBlocksWrap.addEventListener('click', (e) => {
+  const header = e.target.closest('[data-axis-toggle]');
+  if(!header) return;
+  const idx = Number(header.getAttribute('data-axis-toggle'));
+  axisExpanded[idx] = !axisExpanded[idx];
+  render();
+  axisBlocksWrap.querySelector(`[data-axis-toggle="${idx}"]`).focus();
+});
+
+filterBar.addEventListener('click', (e) => {
+  const letterBtn = e.target.closest('[data-filter-letter]');
+  if(letterBtn){
+    const axisIndex = Number(letterBtn.getAttribute('data-axis-index'));
+    const letter = letterBtn.getAttribute('data-filter-letter');
+    filters[axisIndex] = filters[axisIndex] === letter ? null : letter;
+    render();
+    return;
+  }
+  const resetBtn = e.target.closest('[data-filter-reset]');
+  if(resetBtn){
+    filters = [null, null, null, null];
+    render();
+  }
+});
+
+entriesWrap.addEventListener('click', async (e) => {
+  const delBtn = e.target.closest('[data-del]');
+  if(delBtn){
+    const entry = entries.find(en => en.id === delBtn.getAttribute('data-del'));
+    if(!entry) return;
+    pendingDeleteId = entry.id;
+    document.getElementById('deleteName').textContent = entry.name;
+    document.getElementById('deleteError').hidden = true;
+    deleteDialog.showModal();
+    return;
+  }
+  const editBtn = e.target.closest('[data-edit]');
+  if(editBtn){ editingId = editBtn.getAttribute('data-edit'); render(); return; }
+  const cancelBtn = e.target.closest('[data-cancel]');
+  if(cancelBtn){ editingId = null; render(); return; }
+  const saveBtn = e.target.closest('[data-save]');
+  if(saveBtn){ await commitNameEdit(saveBtn.getAttribute('data-save')); return; }
+});
+
+entriesWrap.addEventListener('keydown', async (e) => {
+  if(e.key === 'Enter' && e.target.matches('[data-editinput]')){
+    e.preventDefault();
+    await commitNameEdit(e.target.getAttribute('data-editinput'));
+  }
+  if(e.key === 'Escape' && e.target.matches('[data-editinput]')){
+    editingId = null;
+    render();
+  }
+});
+
+async function commitNameEdit(id){
+  const input = entriesWrap.querySelector(`[data-editinput="${id}"]`);
+  if(!input) return;
+  const newName = input.value.trim();
+  if(!newName){ showToast('名前を入力してください。'); return; }
+  if(!saveEntries(entries.map(en => en.id === id ? {...en, name: newName} : en))) return;
+  editingId = null;
+  render();
+}
+
+function getAxisFilteredEntries(){
+  return entries.filter(en => AXES.every((axis, i) => !filters[i] || en.type[i] === filters[i]));
+}
+
+function getVisibleEntries(){
+  const term = searchTerm.toLowerCase();
+    return getAxisFilteredEntries().filter(en => !term || en.name.toLowerCase().includes(term))
+      .sort((a, b) => TYPE_ORDER.indexOf(a.type) - TYPE_ORDER.indexOf(b.type));
+}
+
+function render(){
+  totalCount.textContent = entries.length;
+
+  // Axis breakdown (reflects all entries, chronological oldest->newest for display order)
+  const chronological = [...entries].reverse();
+  axisBlocksWrap.innerHTML = AXES.map((axis, i) => axisBlockHtml(axis, i, chronological)).join('');
+
+  // 16-type grid (reflects all entries)
+  typeGridWrap.innerHTML = TYPE_GROUPS.map(group => groupHeading(group, entries.filter(en => group.types.includes(en.type)).length) + group.types.map(code => {
+    const count = entries.filter(en => en.type === code).length;
+    return `<div class="typecell ${count > 0 ? 'has' : ''}" style="${groupStyle(group)}">
+      <span class="tcode">${code}</span>
+      <span class="tcount">${count}人</span>
+    </div>`;
+  }).join('')).join('');
+
+  // filter bar
+  filterBar.innerHTML = filterBarHtml();
+
+  // member list (axis filter + search)
+  const visible = getVisibleEntries();
+  if(entries.length === 0){
+    entriesWrap.innerHTML = '<div class="empty">まだ登録がありません。上の「＋ 人物を追加」から登録してください。</div>';
+  }else if(visible.length === 0){
+    entriesWrap.innerHTML = '<div class="empty">条件に一致するメンバーがいません。</div>';
+  }else{
+    entriesWrap.innerHTML = '<div class="entries">' + TYPE_GROUPS.map(group => {
+      const members = visible.filter(en => group.types.includes(en.type));
+      return members.length ? groupHeading(group, members.length) + members.map(cardHtml).join('') : '';
+    }).join('') + '</div>';
+  }
+}
+
+function axisBlockHtml(axis, i, chronologicalList){
+  const [a, b] = axis.pair;
+  const namesA = chronologicalList.filter(en => en.type[i] === a).map(en => en.name);
+  const namesB = chronologicalList.filter(en => en.type[i] === b).map(en => en.name);
+  const expanded = axisExpanded[i];
+
+  const nameColHtml = (names, letter, label) => `<div class="namecol"><h3>${letter} · ${label}（${names.length}人）</h3>${
+    names.length
+      ? names.map(n => `<div class="nameitem">${escapeHtml(n)}</div>`).join('')
+      : '<div class="noneitem">該当なし</div>'
+  }</div>`;
+
+  const total = chronologicalList.length;
+  const percentA = total ? Math.round(namesA.length / total * 100) : 0;
+  const percentB = total ? 100 - percentA : 0;
+  const titles = ['エネルギーの向き', '情報の受け取り方', '判断のしかた', '外の世界への接し方'];
+  const side = (letter, label, count, percent) => `<span class="axisside"><strong>${letter}</strong><span class="axismeaning">${label}</span><span class="axismetric">${count}<small>人 · ${percent}%</small></span></span>`;
+  return `<div class="axisblock" style="--axis-color:${axis.color}">
+    <button type="button" class="axisheader ${expanded ? 'expanded' : ''}" data-axis-toggle="${i}" aria-expanded="${expanded}" aria-controls="axis-names-${i}">
+      <span class="axistop"><span class="axistitle">${titles[i]}</span><span class="axisaction">${expanded ? '名前を閉じる' : '名前を見る'} <span class="chev" aria-hidden="true">${expanded ? '▴' : '▾'}</span></span></span>
+      <span class="axiscomparison">${side(a, axis.label[0], namesA.length, percentA)}${side(b, axis.label[1], namesB.length, percentB)}</span>
+      <span class="axisbar" aria-hidden="true"><span style="width:${percentA}%"></span><span style="width:${percentB}%"></span></span>
+    </button>
+    <div id="axis-names-${i}" ${expanded ? 'class="axisnames"' : 'hidden'}>${expanded ? nameColHtml(namesA, a, axis.label[0]) + nameColHtml(namesB, b, axis.label[1]) : ''}</div>
+  </div>`;
+}
+
+function filterBarHtml(){
+  const groups = AXES.map((axis, i) => {
+    const [a, b] = axis.pair;
+    const btn = (letter) => {
+      const on = filters[i] === letter;
+      return `<button type="button" class="filterletter ${on ? 'on' : ''}" style="${on ? `background:${axis.color}; border-color:${axis.color};` : ''}" data-filter-letter="${letter}" data-axis-index="${i}">${letter}</button>`;
+    };
+    return `<div class="filtergroup">${btn(a)}${btn(b)}</div>`;
+  }).join('');
+  const visibleCount = getVisibleEntries().length;
+  const activeFilter = filters.some(f => f !== null);
+  return `<span class="filtercount">絞り込み:</span>${groups}` +
+    (activeFilter
+      ? `<button type="button" class="filterreset" data-filter-reset>リセット (${visibleCount}件表示中)</button>`
+      : `<span class="filtercount" style="margin-left:auto;">${entries.length}件</span>`);
+}
+
+function cardHtml(entry){
+  const t = entry.type;
+  const group = typeGroup(t);
+  const axisRows = AXES.map((axis, i) => {
+    const selected = t[i];
+    const [a,b] = axis.pair;
+    return `<div class="letterpair">
+      <span class="${selected===a?'active':''}" ${selected===a?`style="background:${axis.color}"`:''}>${a}</span>
+      <span class="${selected===b?'active':''}" ${selected===b?`style="background:${axis.color}"`:''}>${b}</span>
+    </div>`;
+  }).join('');
+
+  const isEditing = editingId === entry.id;
+  const nameBlock = isEditing
+    ? `<div class="nameedit">
+        <input type="text" value="${escapeHtml(entry.name)}" data-editinput="${entry.id}" autofocus>
+        <button type="button" data-save="${entry.id}">保存</button>
+        <button type="button" class="cancelbtn" data-cancel="${entry.id}">キャンセル</button>
+      </div>`
+    : `<div class="name">${escapeHtml(entry.name)} <button type="button" class="editbtn" data-edit="${entry.id}">編集</button></div>`;
+
+  return `<div class="card" style="${groupStyle(group)}">
+    <div class="codebadge">${t}<small>${group.name}</small></div>
+    <div>
+      ${nameBlock}
+      <div class="axisrow">${axisRows}</div>
+    </div>
+    <button class="delbtn" data-del="${entry.id}">削除</button>
+  </div>`;
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+loadEntries();
+</script>
+</body>
+</html>
